@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FarmGrab - Farm Marketplace</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #4f46e5;
+        }
+
+        .auth-section {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #4f46e5;
+            border: 2px solid #4f46e5;
+        }
+
+        .btn-secondary:hover {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+            min-height: calc(100vh - 80px);
+            padding: 2rem 0;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Homepage */
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Search and Filter */
+        .search-filter {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .search-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .search-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .search-group input,
+        .search-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-group input:focus,
+        .search-group select:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        /* Product Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-slider {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .product-slider img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .product-slider img.active {
+            opacity: 1;
+        }
+
+        .slider-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .dot.active {
+            background: white;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+
+        .product-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-item {
+            background: #f3f4f6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+
+        .price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #059669;
+            margin-bottom: 0.5rem;
+        }
+
+        .location {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        /* Product Detail Page */
+        .product-detail {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .detail-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .detail-gallery {
+            position: relative;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+        }
+
+        .thumbnail-row {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .thumbnail:hover,
+        .thumbnail.active {
+            opacity: 1;
+        }
+
+        .detail-info h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        .detail-price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #059669;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .spec-item {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .spec-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .spec-value {
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .contact-agent {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .contact-agent:hover {
+            transform: translateY(-2px);
+        }
+
+        .description-section {
+            margin-bottom: 3rem;
+        }
+
+        .description-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        .description-section p {
+            line-height: 1.8;
+            color: #4b5563;
+        }
+
+        .map-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        #map {
+            height: 300px;
+            border-radius: 15px;
+        }
+
+        /* Forms */
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Admin Management */
+        .admin-table {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .admin-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .admin-table img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border-radius: 8px;
+        }
+
+        /* Login Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .search-row {
+                flex-direction: column;
+            }
+
+            .detail-header {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: white;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .admin-only {
+            display: none;
+        }
+
+        .admin-only.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="#" class="logo" onclick="showPage('homepage')">🐑 FarmGrab</a>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showPage('homepage')">Home</a></li>
+                <li><a href="#" onclick="showPage('add-product')">Sell</a></li>
+                <li><a href="#" class="admin-only" onclick="showPage('admin')">Admin</a></li>
+            </ul>
+            <div class="auth-section">
+                <span id="user-name" class="hidden"></span>
+                <button id="login-btn" class="btn btn-secondary" onclick="openLoginModal()">Admin Login</button>
+                <button id="logout-btn" class="btn btn-danger hidden" onclick="logout()">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- Homepage -->
+        <div id="homepage" class="page active">
+            <section class="hero">
+                <h1>Premium Livestock Marketplace</h1>
+                <p>Find the finest rams, sheep, goats, and chickens from trusted breeders</p>
+            </section>
+
+            <section class="search-filter">
+                <div class="search-row">
+                    <div class="search-group">
+                        <label for="search-term">Search</label>
+                        <input type="text" id="search-term" placeholder="Search animals..." oninput="filterProducts()">
+                    </div>
+                    <div class="search-group">
+                        <label for="animal-type">Animal Type</label>
+                        <select id="animal-type" onchange="filterProducts()">
+                            <option value="">All Animals</option>
+                            <option value="ram">Ram</option>
+                            <option value="sheep">Sheep</option>
+                            <option value="goat">Goat</option>
+                            <option value="chicken">Chicken</option>
+                        </select>
+                    </div>
+                    <div class="search-group">
+                        <label for="breed-filter">Breed</label>
+                        <select id="breed-filter" onchange="filterProducts()">
+                            <option value="">All Breeds</option>
+                        </select>
+                    </div>
+                    <div class="search-group">
+                        <label for="location-filter">Location</label>
+                        <select id="location-filter" onchange="filterProducts()">
+                            <option value="">All Locations</option>
+                        </select>
+                    </div>
+                    <div class="search-group">
+                        <button class="btn btn-primary" onclick="clearFilters()">Clear Filters</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="products-container">
+                <div class="loading">Loading products...</div>
+            </section>
+        </div>
+
+        <!-- Product Detail Page -->
+        <div id="product-detail" class="page">
+            <button class="btn btn-secondary" onclick="showPage('homepage')" style="margin-bottom: 2rem;">← Back to Products</button>
+            <div id="product-detail-content"></div>
+        </div>
+
+        <!-- Add Product Page -->
+        <div id="add-product" class="page">
+            <div class="form-container">
+                <h2 style="margin-bottom: 2rem; color: #1f2937;">Add New Product</h2>
+                <form id="add-product-form">
+                    <div class="form-group">
+                        <label for="product-name">Product Name</label>
+                        <input type="text" id="product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-type">Animal Type</label>
+                        <select id="product-type" required>
+                            <option value="">Select Animal Type</option>
+                            <option value="ram">Ram</option>
+                            <option value="sheep">Sheep</option>
+                            <option value="goat">Goat</option>
+                            <option value="chicken">Chicken</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-breed">Breed</label>
+                        <input type="text" id="product-breed" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-price">Price (₦)</label>
+                        <input type="number" id="product-price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-age">Age (months)</label>
+                        <input type="number" id="product-age" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-weight">Weight (kg)</label>
+                        <input type="number" id="product-weight" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-location">Location</label>
+                        <input type="text" id="product-location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-description">Description</label>
+                        <textarea id="product-description" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Product</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Admin Management Page -->
+        <div id="admin" class="page">
+            <h2 style="margin-bottom: 2rem; color: white;">Product Management</h2>
+            <div class="admin-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Breed</th>
+                            <th>Price</th>
+                            <th>Location</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-products-table">
+                        <tr>
+                            <td colspan="7" class="loading">Loading products...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2 style="margin-bottom: 1.5rem;">Admin Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #6b7280;">
+                Demo credentials: admin / admin123
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script>
+        // Sample data
+        const adminCredentials = {
+            username: "admin",
+            password: "admin123"
+        };
+
+        let products = [
+            {
+                id: 1,
+                name: "Premium Dorper Ram",
+                type: "ram",
+                breed: "Dorper",
+                price: 85000,
+                age: 18,
+                weight: 75,
+                location: "Lagos, Nigeria",
+                description: "Exceptional breeding ram with excellent conformation and proven genetics. This Dorper ram has superior meat quality characteristics and excellent adaptability to various climates. Perfect for commercial breeding programs.",
+                images: [
+                "/ram1.jpeg",
+                "/ram2.jpeg",
+            ],
+                coordinates: [6.5244, 3.3792]
+            },
+            {
+                id: 2,
+                name: "White Suffolk Ewe",
+                type: "sheep",
+                breed: "White Suffolk",
+                price: 65000,
+                age: 24,
+                weight: 55,
+                location: "Abuja, FCT",
+                description: "High-quality breeding ewe with excellent maternal instincts and milk production. Known for easy lambing and superior mothering ability. Ideal for expanding your flock with quality genetics.",
+                images: [
+                    "/ewe1.jpeg",
+                    "/ewe2.jpeg",
+                ],
+                coordinates: [9.0579, 7.4951]
+            },
+            {
+                id: 3,
+                name: "Boer Goat Buck",
+                type: "goat",
+                breed: "Boer",
+                price: 120000,
+                age: 20,
+                weight: 85,
+                location: "Kaduna, Kaduna",
+                description: "Champion bloodline Boer buck with exceptional growth rates and meat quality. This buck has excellent conformation and has produced multiple award-winning offspring. Perfect for serious breeders.",
+                images: [
+                "/goat1.jpeg",
+                "/goat2.jpeg", 
+            ],
+                coordinates: [10.5105, 7.4165]
+            },
+            {
+                id: 4,
+                name: "Rhode Island Red Hens",
+                type: "chicken",
+                breed: "Rhode Island Red",
+                price: 8500,
+                age: 6,
+                weight: 2.5,
+                location: "Ibadan, Oyo",
+                description: "Productive laying hens with excellent egg production capacity. These birds are known for their hardiness, good feed conversion, and consistent egg laying. Perfect for both commercial and backyard farming.",
+                images: [
+                "/hen1.jpeg",
+                "/hen2.jpeg",
+            ],
+                coordinates: [7.3775, 3.9470]
+            },
+            {
+                id: 5,
+                name: "Kalahari Red Goat",
+                type: "goat",
+                breed: "Kalahari Red",
+                price: 95000,
+                age: 15,
+                weight: 68,
+                location: "Jos, Plateau",
+                description: "Hardy and adaptable Kalahari Red goat with excellent heat tolerance and disease resistance. Known for fast growth rates and good meat quality. Ideal for extensive farming systems.",
+                images: [
+                "/goat1.jpeg",
+                "/goat2.jpeg",
+            ],
+                coordinates: [9.8965, 8.8583]
+            },
+            {
+                id: 6,
+                name: "Broiler Chickens",
+                type: "chicken",
+                breed: "Cobb 500",
+                price: 3500,
+                age: 2,
+                weight: 1.8,
+                location: "Kano, Kano",
+                description: "Fast-growing broiler chickens ready for market. Excellent feed conversion efficiency and uniform growth. These birds are perfect for commercial meat production with consistent quality.",
+                images: [
+                "/hen1.jpeg",
+                "/hen2.jpeg",
+                ],
+                coordinates: [12.0022, 8.5920]
+            }
+        ];
+
+        let filteredProducts = [...products];
+        let currentUser = null;
+        let currentProductId = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+            populateFilterOptions();
+        });
+
+        // Navigation functions
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+
+            if (pageId === 'admin' && !currentUser) {
+                showPage('homepage');
+                openLoginModal();
+                return;
+            }
+
+            if (pageId === 'admin') {
+                loadAdminProducts();
+            }
+        }
+
+        // Authentication functions
+        function openLoginModal() {
+            document.getElementById('login-modal').style.display = 'block';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').style.display = 'none';
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('login-btn').classList.remove('hidden');
+            document.getElementById('logout-btn').classList.add('hidden');
+            document.getElementById('user-name').classList.add('hidden');
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.classList.remove('show');
+            });
+            showPage('homepage');
+        }
+
+        // Login form handler
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === adminCredentials.username && password === adminCredentials.password) {
+                currentUser = { username: username };
+                document.getElementById('login-btn').classList.add('hidden');
+                document.getElementById('logout-btn').classList.remove('hidden');
+                document.getElementById('user-name').textContent = `Welcome, ${username}`;
+                document.getElementById('user-name').classList.remove('hidden');
+                document.querySelectorAll('.admin-only').forEach(el => {
+                    el.classList.add('show');
+                });
+                closeLoginModal();
+                showPage('admin');
+            } else {
+                alert('Invalid credentials. Please try again.');
+            }
+        });
+
+        // Product loading and filtering
+        function loadProducts() {
+            const container = document.getElementById('products-container');
+            
+            if (filteredProducts.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: white; padding: 2rem;"><h3>No products found</h3><p>Try adjusting your search filters</p></div>';
+                return;
+            }
+
+            const productsGrid = document.createElement('div');
+            productsGrid.className = 'products-grid';
+
+            filteredProducts.forEach(product => {
+                const productCard = createProductCard(product);
+                productsGrid.appendChild(productCard);
+            });
+
+            container.innerHTML = '';
+            container.appendChild(productsGrid);
+
+            // Initialize auto sliders
+            initializeSliders();
+        }
+
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.onclick = () => showProductDetail(product.id);
+
+            card.innerHTML = `
+                <div class="product-slider" data-product-id="${product.id}">
+                    ${product.images.map((img, index) => `
+                        <img src="${img}" alt="${product.name}" class="${index === 0 ? 'active' : ''}" loading="lazy">
+                    `).join('')}
+                    <div class="slider-dots">
+                        ${product.images.map((_, index) => `
+                            <div class="dot ${index === 0 ? 'active' : ''}" onclick="changeSlide(event, ${product.id}, ${index})"></div>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3>${product.name}</h3>
+                    <div class="product-details">
+                        <span class="detail-item">${product.type.charAt(0).toUpperCase() + product.type.slice(1)}</span>
+                        <span class="detail-item">${product.breed}</span>
+                        <span class="detail-item">${product.age} months</span>
+                    </div>
+                    <div class="price">₦${product.price.toLocaleString()}</div>
+                    <div class="location">📍 ${product.location}</div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function initializeSliders() {
+            products.forEach(product => {
+                if (document.querySelector(`[data-product-id="${product.id}"]`)) {
+                    startAutoSlider(product.id, product.images.length);
+                }
+            });
+        }
+
+        function startAutoSlider(productId, imageCount) {
+            let currentIndex = 0;
+            setInterval(() => {
+                const slider = document.querySelector(`[data-product-id="${productId}"]`);
+                if (!slider) return;
+
+                currentIndex = (currentIndex + 1) % imageCount;
+                changeSlide(null, productId, currentIndex);
+            }, 3000);
+        }
+
+        function changeSlide(event, productId, slideIndex) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            const slider = document.querySelector(`[data-product-id="${productId}"]`);
+            if (!slider) return;
+
+            const images = slider.querySelectorAll('img');
+            const dots = slider.querySelectorAll('.dot');
+
+            images.forEach((img, index) => {
+                img.classList.toggle('active', index === slideIndex);
+            });
+
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === slideIndex);
+            });
+        }
+
+        // Filter functions
+        function populateFilterOptions() {
+            const breeds = [...new Set(products.map(p => p.breed))];
+            const locations = [...new Set(products.map(p => p.location))];
+
+            const breedFilter = document.getElementById('breed-filter');
+            const locationFilter = document.getElementById('location-filter');
+
+            breeds.forEach(breed => {
+                const option = document.createElement('option');
+                option.value = breed;
+                option.textContent = breed;
+                breedFilter.appendChild(option);
+            });
+
+            locations.forEach(location => {
+                const option = document.createElement('option');
+                option.value = location;
+                option.textContent = location;
+                locationFilter.appendChild(option);
+            });
+        }
+
+        function filterProducts() {
+            const searchTerm = document.getElementById('search-term').value.toLowerCase();
+            const animalType = document.getElementById('animal-type').value;
+            const breed = document.getElementById('breed-filter').value;
+            const location = document.getElementById('location-filter').value;
+
+            filteredProducts = products.filter(product => {
+                const matchesSearch = !searchTerm || 
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.breed.toLowerCase().includes(searchTerm) ||
+                    product.location.toLowerCase().includes(searchTerm);
+
+                const matchesType = !animalType || product.type === animalType;
+                const matchesBreed = !breed || product.breed === breed;
+                const matchesLocation = !location || product.location === location;
+
+                return matchesSearch && matchesType && matchesBreed && matchesLocation;
+            });
+
+            loadProducts();
+        }
+
+        function clearFilters() {
+            document.getElementById('search-term').value = '';
+            document.getElementById('animal-type').value = '';
+            document.getElementById('breed-filter').value = '';
+            document.getElementById('location-filter').value = '';
+            filteredProducts = [...products];
+            loadProducts();
+        }
+
+        // Product detail functions
+        function showProductDetail(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            currentProductId = productId;
+            const container = document.getElementById('product-detail-content');
+
+            container.innerHTML = `
+                <div class="product-detail">
+                    <div class="detail-header">
+                        <div class="detail-gallery">
+                            <img id="main-image" src="${product.images[0]}" alt="${product.name}" class="main-image">
+                            <div class="thumbnail-row">
+                                ${product.images.map((img, index) => `
+                                    <img src="${img}" alt="${product.name}" class="thumbnail ${index === 0 ? 'active' : ''}" 
+                                         onclick="changeMainImage('${img}', ${index})">
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="detail-info">
+                            <h1>${product.name}</h1>
+                            <div class="detail-price">₦${product.price.toLocaleString()}</div>
+                            <div class="detail-specs">
+                                <div class="spec-item">
+                                    <div class="spec-label">Type</div>
+                                    <div class="spec-value">${product.type.charAt(0).toUpperCase() + product.type.slice(1)}</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-label">Breed</div>
+                                    <div class="spec-value">${product.breed}</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-label">Age</div>
+                                    <div class="spec-value">${product.age} months</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-label">Weight</div>
+                                    <div class="spec-value">${product.weight} kg</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-label">Location</div>
+                                    <div class="spec-value">${product.location}</div>
+                                </div>
+                            </div>
+                            <button class="contact-agent" onclick="contactAgent('${product.name}')">
+                                📞 Contact Agent
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="description-section">
+                        <h2>Description</h2>
+                        <p>${product.description}</p>
+                    </div>
+                    
+                    <div class="map-section">
+                        <h2>Location</h2>
+                        <div id="map"></div>
+                    </div>
+                </div>
+            `;
+
+            showPage('product-detail');
+            
+            // Initialize map
+            setTimeout(() => initializeMap(product.coordinates, product.location), 100);
+        }
+
+        function changeMainImage(imageSrc, index) {
+            document.getElementById('main-image').src = imageSrc;
+            
+            document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === index);
+            });
+        }
+
+        function contactAgent(productName) {
+            alert(`Thank you for your interest in ${productName}! In a real application, this would connect you with the seller.`);
+        }
+
+        function initializeMap(coordinates, locationName) {
+            const mapContainer = document.getElementById('map');
+            if (!mapContainer) return;
+
+            // Clear any existing map
+            mapContainer.innerHTML = '';
+
+            const map = L.map('map').setView(coordinates, 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            L.marker(coordinates)
+                .addTo(map)
+                .bindPopup(locationName)
+                .openPopup();
+        }
+
+        // Add product form
+        document.getElementById('add-product-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const newProduct = {
+                id: products.length + 1,
+                name: document.getElementById('product-name').value,
+                type: document.getElementById('product-type').value,
+                breed: document.getElementById('product-breed').value,
+                price: parseInt(document.getElementById('product-price').value),
+                age: parseInt(document.getElementById('product-age').value),
+                weight: parseFloat(document.getElementById('product-weight').value) || 0,
+                location: document.getElementById('product-location').value,
+                description: document.getElementById('product-description').value,
+                images: [
+                  "/ram1.jpeg",
+                  "/ram2.jpeg",
+                ],
+                coordinates: [9.0579, 7.4951] // Default coordinates
+            };
+
+            products.push(newProduct);
+            filteredProducts = [...products];
+            
+            // Update filter options
+            populateFilterOptions();
+            
+            alert('Product added successfully!');
+            this.reset();
+            showPage('homepage');
+            loadProducts();
+        });
+
+        // Admin functions
+        function loadAdminProducts() {
+            const tbody = document.getElementById('admin-products-table');
+            
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No products found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td><img src="${product.images[0]}" alt="${product.name}"></td>
+                    <td>${product.name}</td>
+                    <td>${product.type.charAt(0).toUpperCase() + product.type.slice(1)}</td>
+                    <td>${product.breed}</td>
+                    <td>₦${product.price.toLocaleString()}</td>
+                    <td>${product.location}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-small btn-secondary" onclick="editProduct(${product.id})">Edit</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteProduct(${product.id})">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            // Populate form with existing data
+            document.getElementById('product-name').value = product.name;
+            document.getElementById('product-type').value = product.type;
+            document.getElementById('product-breed').value = product.breed;
+            document.getElementById('product-price').value = product.price;
+            document.getElementById('product-age').value = product.age;
+            document.getElementById('product-weight').value = product.weight;
+            document.getElementById('product-location').value = product.location;
+            document.getElementById('product-description').value = product.description;
+
+            // Remove existing product
+            deleteProduct(productId, false);
+            
+            showPage('add-product');
+        }
+
+        function deleteProduct(productId, showConfirm = true) {
+            if (showConfirm && !confirm('Are you sure you want to delete this product?')) {
+                return;
+            }
+
+            products = products.filter(p => p.id !== productId);
+            filteredProducts = products.filter(p => filteredProducts.find(fp => fp.id === p.id));
+            
+            loadAdminProducts();
+            
+            if (showConfirm) {
+                alert('Product deleted successfully!');
+            }
+        }
+
+        // Modal click outside to close
+        window.onclick = function(event) {
+            const modal = document.getElementById('login-modal');
+            if (event.target === modal) {
+                closeLoginModal();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLoginModal();
+            }
+        });
+    </script>
+</body>
+</html>
