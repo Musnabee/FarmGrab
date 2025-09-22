@@ -149,23 +149,23 @@
         /* Search and Filter */
         .search-filter {
             background: rgba(255, 255, 255, 0.95);
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 20px;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(10px);
         }
 
         .search-row {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
-            flex-wrap: wrap;
             align-items: end;
         }
 
         .search-group {
-            flex: 1;
-            min-width: 200px;
+            display: flex;
+            flex-direction: column;
         }
 
         .search-group label {
@@ -173,22 +173,64 @@
             margin-bottom: 0.5rem;
             font-weight: 600;
             color: #374151;
+            font-size: 0.9rem;
         }
 
         .search-group input,
         .search-group select {
             width: 100%;
-            padding: 0.75rem;
+            padding: 1rem;
             border: 2px solid #e5e7eb;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 1rem;
-            transition: border-color 0.3s ease;
+            background: white;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-group select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+            padding-right: 3rem;
         }
 
         .search-group input:focus,
         .search-group select:focus {
             outline: none;
             border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .search-group input::placeholder {
+            color: #9ca3af;
+            font-size: 0.95rem;
+        }
+
+        /* iOS specific styles */
+        @supports (-webkit-touch-callout: none) {
+            .search-group input,
+            .search-group select {
+                font-size: 16px; /* Prevents zoom on iOS */
+                -webkit-appearance: none;
+                border-radius: 12px;
+            }
+            
+            .search-group select {
+                background-color: white;
+            }
+        }
+
+        /* Android specific styles */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+            .search-group select {
+                background-color: white;
+            }
         }
 
         /* Product Grid */
@@ -548,19 +590,78 @@
             color: #333;
         }
 
-        /* Responsive */
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .hero h1 {
+                font-size: 3rem;
+            }
+            
+            .search-filter {
+                padding: 1.25rem;
+            }
+            
+            .detail-header {
+                gap: 2rem;
+            }
+        }
+
         @media (max-width: 768px) {
+            .hero {
+                padding: 2rem 0;
+            }
+            
             .hero h1 {
                 font-size: 2.5rem;
+                line-height: 1.2;
+            }
+
+            .hero p {
+                font-size: 1rem;
+                padding: 0 1rem;
+            }
+
+            .search-filter {
+                padding: 1rem;
+                border-radius: 15px;
+                margin-bottom: 1.5rem;
             }
 
             .search-row {
-                flex-direction: column;
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .search-group input,
+            .search-group select {
+                padding: 1rem;
+                font-size: 16px; /* Prevents zoom on mobile */
+                border-radius: 10px;
             }
 
             .detail-header {
                 grid-template-columns: 1fr;
-                gap: 2rem;
+                gap: 1.5rem;
+            }
+
+            .detail-info h1 {
+                font-size: 2rem;
+            }
+
+            .detail-price {
+                font-size: 1.5rem;
+            }
+
+            .detail-specs {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+
+            .spec-item {
+                padding: 0.75rem;
             }
 
             .nav-links {
@@ -569,6 +670,261 @@
 
             .products-grid {
                 grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .product-info {
+                padding: 1.25rem;
+            }
+
+            .product-details {
+                gap: 0.5rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .detail-item {
+                font-size: 0.85rem;
+                padding: 0.2rem 0.6rem;
+            }
+
+            .admin-table {
+                overflow-x: auto;
+            }
+
+            .admin-table table {
+                min-width: 700px;
+            }
+
+            .admin-table th,
+            .admin-table td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .btn-small {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+                border-radius: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 10px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 0.95rem;
+            }
+
+            .search-filter {
+                padding: 0.75rem;
+                margin-bottom: 1rem;
+            }
+
+            .search-group label {
+                font-size: 0.85rem;
+                margin-bottom: 0.4rem;
+            }
+
+            .search-group input,
+            .search-group select {
+                padding: 0.9rem;
+                font-size: 16px;
+                border-radius: 8px;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .product-card {
+                border-radius: 15px;
+            }
+
+            .product-slider {
+                height: 180px;
+            }
+
+            .product-info {
+                padding: 1rem;
+            }
+
+            .product-info h3 {
+                font-size: 1.1rem;
+            }
+
+            .price {
+                font-size: 1.3rem;
+            }
+
+            .detail-specs {
+                grid-template-columns: 1fr;
+            }
+
+            .main-image {
+                height: 250px;
+            }
+
+            .thumbnail {
+                width: 60px;
+                height: 60px;
+            }
+
+            .contact-agent {
+                padding: 0.9rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .btn {
+                padding: 0.65rem 1.25rem;
+                font-size: 0.9rem;
+            }
+
+            .modal-content {
+                margin: 20% auto;
+                padding: 1.5rem;
+                width: 95%;
+                border-radius: 15px;
+            }
+
+            .form-container {
+                padding: 1rem;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                padding: 0.9rem;
+                font-size: 16px;
+                border-radius: 8px;
+            }
+
+            nav {
+                padding: 0.75rem 0;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .auth-section {
+                gap: 0.5rem;
+            }
+
+            .page {
+                padding: 1rem 0;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .products-grid {
+                gap: 0.75rem;
+            }
+
+            .search-filter {
+                padding: 0.5rem;
+            }
+
+            .search-group input,
+            .search-group select {
+                padding: 0.8rem;
+            }
+        }
+
+        /* Touch and hover improvements */
+        @media (hover: hover) {
+            .product-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            }
+
+            .btn:hover,
+            .contact-agent:hover {
+                transform: translateY(-2px);
+            }
+        }
+
+        @media (hover: none) {
+            .product-card {
+                transition: none;
+            }
+            
+            .product-card:active {
+                transform: scale(0.98);
+            }
+
+            .btn:active,
+            .contact-agent:active {
+                transform: scale(0.98);
+            }
+        }
+
+        /* High DPI displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .search-group select {
+                background-size: 1.2rem;
+            }
+        }
+
+        /* Landscape mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .hero {
+                padding: 1.5rem 0;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .search-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .detail-header {
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+        }
+
+        /* Focus states for accessibility */
+        .search-group input:focus,
+        .search-group select:focus,
+        .btn:focus,
+        .contact-agent:focus {
+            outline: 2px solid #4f46e5;
+            outline-offset: 2px;
+        }
+
+        /* Improved button spacing on mobile */
+        @media (max-width: 768px) {
+            .auth-section {
+                flex-direction: row;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .auth-section .btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
             }
         }
 
@@ -792,9 +1148,10 @@
                 location: "Lagos, Nigeria",
                 description: "Exceptional breeding ram with excellent conformation and proven genetics. This Dorper ram has superior meat quality characteristics and excellent adaptability to various climates. Perfect for commercial breeding programs.",
                 images: [
-                "assets/ram1.jpeg",
-                "assets/ram2.jpeg",
-            ],
+                    "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400",
+                    "https://images.unsplash.com/photo-1516467508483-a0ba0fdb6ba5?w=400",
+                    "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400"
+                ],
                 coordinates: [6.5244, 3.3792]
             },
             {
@@ -808,8 +1165,9 @@
                 location: "Abuja, FCT",
                 description: "High-quality breeding ewe with excellent maternal instincts and milk production. Known for easy lambing and superior mothering ability. Ideal for expanding your flock with quality genetics.",
                 images: [
-                    "assets/ewe1.jpeg",
-                    "assets/ewe2.jpeg",
+                    "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400",
+                    "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400",
+                    "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400"
                 ],
                 coordinates: [9.0579, 7.4951]
             },
@@ -824,9 +1182,10 @@
                 location: "Kaduna, Kaduna",
                 description: "Champion bloodline Boer buck with exceptional growth rates and meat quality. This buck has excellent conformation and has produced multiple award-winning offspring. Perfect for serious breeders.",
                 images: [
-                "assets/goat1.jpeg",
-                "assets/goat2.jpeg", 
-            ],
+                    "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400",
+                    "https://images.unsplash.com/photo-1516467508483-a0ba0fdb6ba5?w=400",
+                    "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400"
+                ],
                 coordinates: [10.5105, 7.4165]
             },
             {
@@ -840,9 +1199,10 @@
                 location: "Ibadan, Oyo",
                 description: "Productive laying hens with excellent egg production capacity. These birds are known for their hardiness, good feed conversion, and consistent egg laying. Perfect for both commercial and backyard farming.",
                 images: [
-                "assets/hen1.jpeg",
-                "assets/hen2.jpeg",
-            ],
+                    "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400",
+                    "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400",
+                    "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400"
+                ],
                 coordinates: [7.3775, 3.9470]
             },
             {
@@ -856,9 +1216,10 @@
                 location: "Jos, Plateau",
                 description: "Hardy and adaptable Kalahari Red goat with excellent heat tolerance and disease resistance. Known for fast growth rates and good meat quality. Ideal for extensive farming systems.",
                 images: [
-                "assets/goat1.jpeg",
-                "assets/goat2.jpeg",
-            ],
+                    "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400",
+                    "https://images.unsplash.com/photo-1516467508483-a0ba0fdb6ba5?w=400",
+                    "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400"
+                ],
                 coordinates: [9.8965, 8.8583]
             },
             {
@@ -872,8 +1233,9 @@
                 location: "Kano, Kano",
                 description: "Fast-growing broiler chickens ready for market. Excellent feed conversion efficiency and uniform growth. These birds are perfect for commercial meat production with consistent quality.",
                 images: [
-                "assets/hen1.jpeg",
-                "assets/hen2.jpeg",
+                    "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400",
+                    "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400",
+                    "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400"
                 ],
                 coordinates: [12.0022, 8.5920]
             }
@@ -1212,8 +1574,9 @@
                 location: document.getElementById('product-location').value,
                 description: document.getElementById('product-description').value,
                 images: [
-                  "assets/ram1.jpeg",
-                  "assets/ram2.jpeg",
+                    "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400",
+                    "https://images.unsplash.com/photo-1516467508483-a0ba0fdb6ba5?w=400",
+                    "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400"
                 ],
                 coordinates: [9.0579, 7.4951] // Default coordinates
             };
